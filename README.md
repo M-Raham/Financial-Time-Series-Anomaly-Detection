@@ -1,3 +1,4 @@
+
 # Financial Time-Series Anomaly Detection
 
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
@@ -70,9 +71,3 @@ To keep your environment lean:
 
 ---
 
-For your `requirements.txt`, I recommend:
-1. Either keep the full file for reproducibility
-2. Or regenerate with just the essentials:
-   ```bash
-   pip freeze | grep -E 'yfinance|prophet|scikit-learn|pandas|matplotlib|numpy' > requirements.txt
-   ```
