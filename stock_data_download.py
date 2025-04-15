@@ -12,7 +12,7 @@ data = {company: yf.download(company, period="1y") for company in companies}
 aapl_data = data['AAPL'].copy()
 
 # Add indicators
-aapl_data['SMA_20'] = ta.trend.sma_indicator(aapl_data['Close'], window=20)
+aapl_data['SMA_20'] = ta.trend.sma_indicator(aapl_data['Close'].squeeze(), window=20)
 aapl_data['EMA_20'] = ta.trend.ema_indicator(aapl_data['Close'], window=20)
 aapl_data['RSI'] = ta.momentum.rsi(aapl_data['Close'], window=14)
 bb = ta.volatility.BollingerBands(close=aapl_data['Close'], window=20, window_dev=2)
