@@ -14,15 +14,10 @@ aapl_data = data['AAPL'].copy()
 
 # Prophet requires a DataFrame with columns 'ds' for dates and 'y' for the value we want to forecast
 prophet_data = aapl_data[['Close']].reset_index()
-
-# Ensure 'Date' column is in datetime format
-prophet_data['Date'] = pd.to_datetime(prophet_data['Date'])
-
-# Rename columns for Prophet
 prophet_data = prophet_data.rename(columns={'Date': 'ds', 'Close': 'y'})
 
-# Drop rows with missing values in the 'y' column
-prophet_data = prophet_data.dropna(subset=['y'])
+# Convert 'y' column to numeric
+prophet_data['y'] = pd.to_numeric(prophet_data['y'], errors='coerce')
 
 # Initialize the Prophet model
 model = Prophet()
