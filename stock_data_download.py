@@ -1,5 +1,5 @@
 import yfinance as yf
-from fbprophet import Prophet
+from prophet import Prophet
 import pandas as pd
 import matplotlib.pyplot as plt
 
