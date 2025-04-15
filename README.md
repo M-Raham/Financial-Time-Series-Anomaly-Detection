@@ -1,7 +1,6 @@
 # Financial Time-Series Anomaly Detection
 
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
-![License](https://img.shields.io/badge/License-MIT-green)
 
 Stock market anomaly detection using Prophet, Isolation Forest, and technical indicators.
 
@@ -70,17 +69,6 @@ To keep your environment lean:
    ```
 
 ---
-
-## 📜 License
-MIT License - See [LICENSE](LICENSE).
-
-```
-
-Key improvements:
-1. **Dual Installation Options** - Users can choose between minimal or full setup
-2. **Dependency Hygiene** - Added guidance for maintaining clean requirements
-3. **Reduced Clutter** - Shows only core packages in the main README
-4. **pip-tools Suggestion** - Best practice for dependency management
 
 For your `requirements.txt`, I recommend:
 1. Either keep the full file for reproducibility
