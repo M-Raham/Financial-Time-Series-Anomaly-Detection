@@ -16,7 +16,10 @@ aapl_data = data['AAPL'].copy()
 prophet_data = aapl_data[['Close']].reset_index()
 prophet_data = prophet_data.rename(columns={'Date': 'ds', 'Close': 'y'})
 
-# Convert 'y' column to numeric
+# Ensure 'y' column is properly flattened and numeric
+prophet_data['y'] = prophet_data['y'].values  # Explicitly convert to 1D array
+
+# Convert 'y' to numeric (in case there are any issues with non-numeric data)
 prophet_data['y'] = pd.to_numeric(prophet_data['y'], errors='coerce')
 
 # Initialize the Prophet model
