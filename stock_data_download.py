@@ -1,5 +1,5 @@
 import yfinance as yf
-from prophet import Prophet
+from fbprophet import Prophet
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -16,11 +16,14 @@ aapl_data = data['AAPL'].copy()
 prophet_data = aapl_data[['Close']].reset_index()
 prophet_data = prophet_data.rename(columns={'Date': 'ds', 'Close': 'y'})
 
-# Ensure 'y' column is properly flattened and numeric
-prophet_data['y'] = prophet_data['y'].values  # Explicitly convert to 1D array
+# Ensure 'y' is a pandas Series and is 1D
+prophet_data['y'] = prophet_data['y'].values.flatten()
 
-# Convert 'y' to numeric (in case there are any issues with non-numeric data)
+# Now convert 'y' to numeric
 prophet_data['y'] = pd.to_numeric(prophet_data['y'], errors='coerce')
+
+# Check for NaNs after conversion and drop them
+prophet_data = prophet_data.dropna(subset=['y'])
 
 # Initialize the Prophet model
 model = Prophet()
