@@ -1,6 +1,8 @@
 import yfinance as yf
 import pandas as pd
 import ta  # Technical analysis library
+from sklearn.ensemble import IsolationForest
+import matplotlib.pyplot as plt
 
 # List of companies to analyze
 companies = ['AAPL', 'TSLA', 'MSFT']
@@ -19,7 +21,24 @@ bb = ta.volatility.BollingerBands(close=aapl_data['Close'].squeeze(), window=20,
 aapl_data['BB_upper'] = bb.bollinger_hband()
 aapl_data['BB_lower'] = bb.bollinger_lband()
 
-# Display updated data for Apple (AAPL) with indicators
-print(aapl_data[['Close', 'SMA_20', 'EMA_20', 'RSI', 'BB_upper', 'BB_lower']].tail())
+# Prepare data for anomaly detection (select relevant indicators)
+anomaly_data = aapl_data[['SMA_20', 'EMA_20', 'RSI', 'BB_upper', 'BB_lower']]
 
-# Optional: If you want to inspect the data for other companies (e.g., TSLA or MSFT), you can also calculate indicators for them
+# Initialize the Isolation Forest model
+model = IsolationForest(contamination=0.05, random_state=42)
+
+# Fit the model on the data
+aapl_data['anomaly'] = model.fit_predict(anomaly_data)
+
+# Convert anomaly labels to boolean (1 for anomaly, 0 for normal)
+aapl_data['anomaly'] = aapl_data['anomaly'].apply(lambda x: 1 if x == -1 else 0)
+
+# Visualize the anomalies
+plt.figure(figsize=(14, 7))
+plt.plot(aapl_data.index, aapl_data['Close'], label='Stock Price', color='blue')
+plt.scatter(aapl_data.index[aapl_data['anomaly'] == 1], aapl_data['Close'][aapl_data['anomaly'] == 1], color='red', label='Anomalies')
+plt.title('Stock Price with Anomalies Detected (Isolation Forest)')
+plt.xlabel('Date')
+plt.ylabel('Stock Price')
+plt.legend()
+plt.show()
