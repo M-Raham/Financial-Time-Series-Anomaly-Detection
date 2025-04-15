@@ -1,7 +1,6 @@
 import yfinance as yf
+from fbprophet import Prophet
 import pandas as pd
-import ta  # Technical analysis library
-from sklearn.ensemble import IsolationForest
 import matplotlib.pyplot as plt
 
 # List of companies to analyze
@@ -10,35 +9,30 @@ companies = ['AAPL', 'TSLA', 'MSFT']
 # Download historical stock price data for the last 1 year (or specify your own period)
 data = {company: yf.download(company, period="1y") for company in companies}
 
-# Calculate financial indicators for Apple (AAPL)
+# Prepare the data for Prophet (only using 'Close' price for prediction)
 aapl_data = data['AAPL'].copy()
 
-# Add indicators (using .squeeze() to ensure 1D array for Close column)
-aapl_data['SMA_20'] = ta.trend.sma_indicator(aapl_data['Close'].squeeze(), window=20)
-aapl_data['EMA_20'] = ta.trend.ema_indicator(aapl_data['Close'].squeeze(), window=20)
-aapl_data['RSI'] = ta.momentum.rsi(aapl_data['Close'].squeeze(), window=14)
-bb = ta.volatility.BollingerBands(close=aapl_data['Close'].squeeze(), window=20, window_dev=2)
-aapl_data['BB_upper'] = bb.bollinger_hband()
-aapl_data['BB_lower'] = bb.bollinger_lband()
+# Prophet requires a DataFrame with columns 'ds' for dates and 'y' for the value we want to forecast
+prophet_data = aapl_data[['Close']].reset_index()
+prophet_data = prophet_data.rename(columns={'Date': 'ds', 'Close': 'y'})
 
-# Prepare data for anomaly detection (select relevant indicators)
-anomaly_data = aapl_data[['SMA_20', 'EMA_20', 'RSI', 'BB_upper', 'BB_lower']]
+# Initialize the Prophet model
+model = Prophet()
 
-# Initialize the Isolation Forest model
-model = IsolationForest(contamination=0.05, random_state=42)
+# Fit the model on the stock data
+model.fit(prophet_data)
 
-# Fit the model on the data
-aapl_data['anomaly'] = model.fit_predict(anomaly_data)
+# Make future predictions (e.g., for the next 30 days)
+future = model.make_future_dataframe(prophet_data, periods=30)
+forecast = model.predict(future)
 
-# Convert anomaly labels to boolean (1 for anomaly, 0 for normal)
-aapl_data['anomaly'] = aapl_data['anomaly'].apply(lambda x: 1 if x == -1 else 0)
-
-# Visualize the anomalies
+# Visualize the results
 plt.figure(figsize=(14, 7))
-plt.plot(aapl_data.index, aapl_data['Close'], label='Stock Price', color='blue')
-plt.scatter(aapl_data.index[aapl_data['anomaly'] == 1], aapl_data['Close'][aapl_data['anomaly'] == 1], color='red', label='Anomalies')
-plt.title('Stock Price with Anomalies Detected (Isolation Forest)')
+model.plot(forecast)
+plt.title('Stock Price Forecast with Prophet')
 plt.xlabel('Date')
 plt.ylabel('Stock Price')
-plt.legend()
 plt.show()
+
+# To see the forecasted data (future dates and predictions)
+print(forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].tail())
